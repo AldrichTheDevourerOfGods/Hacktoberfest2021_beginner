@@ -1,0 +1,53 @@
+import requests
+import json
+inp = input()
+r = requests.get(f"http://www.floatrates.com/daily/{inp}.json")
+list_of_values = []
+cache = []
+dictionary = json.loads(r.text)
+rates_of_c = {}
+while True:
+    value = input()
+    if len(value) != 3:
+        break
+    num = int(input())
+    print('Checking the cache…')
+    if inp == 'eur':
+        u = dictionary['usd']
+        rate_of_u = u['rate']
+        new = {"usd": rate_of_u}
+        rates_of_c.update(new)
+        cache.append('usd')
+    elif inp == 'usd':
+        e = dictionary['eur']
+        rate_of_e = e['rate']
+        new = {"eur": rate_of_e}
+        rates_of_c.update(new)
+        cache.append('eur')
+    else:
+        e = dictionary['eur']
+        rate_of_e = e['rate']
+        u = dictionary['usd']
+        rate_of_u = u['rate']
+        new = {"usd": rate_of_u, "eur": rate_of_e}
+        rates_of_c.update(new)
+        cache.append('usd')
+        cache.append('eur')
+    if value in list_of_values:
+        amount = dictionary[value]
+        rate = amount['rate']
+        new_dict = {value: rate}
+        rates_of_c.update(new_dict)
+        new_dict = {}
+        cache.append(value)
+    list_of_values.append(value)
+    if value not in cache:
+        amount = dictionary[value]
+        rate = amount['rate']
+        total = round((rate * num), 2)
+        print("Sorry, but it is not in the cache!")
+        print(f"You received {total} {value.upper()}.")
+    else:
+        print('Oh! It is in the cache!')
+        amount1 = round(rates_of_c[value] * num, 2)
+        print(f"You received {amount1} {value.upper()}.")
